@@ -1,0 +1,22 @@
+{
+  "version": "@version@",
+  "debug": false,
+  "admins": [
+    {
+      "id": 156305927790657538,
+      "user": "brethoodie"
+    },
+    {
+      "id": 91356983042539520,
+      "user": "LimeGlass"
+    },
+    {
+      "id": 152863647113281537,
+      "user": "magicbaguette_"
+    },
+    {
+      "id": 1337522997556416522,
+      "user": "mrbeastgaming0001"
+    }
+  ]
+}
