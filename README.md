@@ -3,7 +3,9 @@
 A Discord bot that records every users' voice from a voice channel to a seperate audio track.
 
 ### Building
-Building jar with `gradlew clean runShadow` or see releases https://github.com/Team-MrBeast/Rechannel/releases
+Building jar with `gradlew clean shadowJar` or see releases https://github.com/Team-MrBeast/Rechannel/releases
+<br>
+Or running with `gradlew clean runShadow`
 
 `java -jar mrbeast-rechannel-1.0.jar` optional arguments include `--resetConfig` and `--debug`
 
