@@ -23,18 +23,6 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(supportedJava))
 }
 
-def env = [:]
-file('.env').eachLine { line ->
-    def (key, value) = line.tokenize('=')
-    if (key && !key.startsWith("#")) {
-        env[key.trim()] = value.trim().replaceAll(/^"(.*)"$/, '$1')
-    }
-}
-
-tasks.withType(JavaExec).configureEach {
-	systemProperties env
-}
-
 tasks.withType(JavaCompile).configureEach {
 	options.compilerArgs += ['-source', '' + supportedJava, '-target', '' + supportedJava]
 }
