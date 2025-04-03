@@ -8,9 +8,10 @@ import java.nio.file.StandardCopyOption
 
 class Configuration(configReset: Boolean = false) {
 
+    private val config = File("configurations", "config.json")
     private var lastModified: Long = -1
     private var configData: JsonObject
-    private val config = File("configurations", "config.json")
+    private var following: Long? = null
     private val gson = Gson()
 
     init {
@@ -22,6 +23,14 @@ class Configuration(configReset: Boolean = false) {
             }
         }
         configData = readConfig()
+    }
+
+    fun getFollowing(): Long? {
+        return following
+    }
+
+    fun setFollowing(following: Long?) {
+        this.following = following
     }
 
     fun isDebug(): Boolean = getRawJsonConfig().get("debug")?.asBoolean == true || Application.debug

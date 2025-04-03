@@ -28,7 +28,6 @@ class CommandListener : ListenerAdapter() {
     }
 
     fun getEventListeners(): Collection<EventListener> = eventListeners.toList()
-
     fun getCommands(): Collection<SlashCommandData> = commands.values.toList()
 
     override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {

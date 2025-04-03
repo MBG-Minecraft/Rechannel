@@ -2,11 +2,13 @@ package com.mrbeastmc.rechannel.commands
 
 import com.mrbeastmc.rechannel.commands.Command.Companion.configuration
 import com.mrbeastmc.rechannel.listeners.AudioReceiveListener
+import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
+import java.util.concurrent.TimeUnit
 
 class StopRecording : ListenerAdapter(), Command {
 
@@ -17,15 +19,18 @@ class StopRecording : ListenerAdapter(), Command {
     override fun execute(event: SlashCommandInteractionEvent) {
         val member = event.member ?: return
         if (configuration.getAdministrators().find { it == member.idLong } == null) {
-            event.reply("You do not have permission to use this command").setEphemeral(true).queue()
+            event.reply("You do not have permission to use this command.").setEphemeral(true).queue()
             return
         }
+        configuration.setFollowing(null)
+        event.jda.presence.activity = null
         (event.guild?.audioManager?.receivingHandler as? AudioReceiveListener)?.shutdown()
         event.guild?.audioManager?.closeAudioConnection()?.let {
-            event.reply("Stopped recording").setEphemeral(true).queue()
-        } ?: run {
-            event.reply("Wasn't recording in this guild").setEphemeral(true).queue()
-        }
+            event.reply("Stopped recording.").setEphemeral(true).queue()
+        } ?: event.reply("Wasn't recording in this guild.")
+            .setEphemeral(true).queue {
+                it.deleteOriginal().queueAfter(5, TimeUnit.SECONDS)
+            }
     }
 
 }

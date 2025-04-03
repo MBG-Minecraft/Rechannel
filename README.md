@@ -22,11 +22,17 @@ Next create a .env in the same directory as the .jar file, and add line `DISCORD
 ### Commands
 `/record <channel> [<segmentedSeconds>] [<volume>]`
 - Starts recording activity in a voice channel.
->- segmentedSeconds is how often to dump the audio track segements to file. Default is every 2 minutes.
+>- segmentedSeconds is how often to dump the audio track segements to file. Default is every 15 minutes.
 >- volume is a value between 0.0 and 1.0 for how loud to record the audio at. Default is 1.0
 
 `/stoprecording`
 - Stops recording in any voice channel from the guild where the command was ran.
+
+`/follow <user> [<segmentedSeconds>] [<volume>]`
+- Follows a user around in their voice channel and records their audio.
+- _Everytime they swap channels, the bot has to flush the buffer to file._
+>- segmentedSeconds is how often to dump the audio track segements to file. Default is every 15 minutes.
+>- volume is a value between 0.0 and 1.0 for how loud to record the audio at. Default is 1.0
 <br><br>
 
 Recorded .mp3 files are located at `/recordings/$user/$date/`
@@ -35,4 +41,6 @@ There are two formats, withSilence and rawNoSilence.
 <br>
 Discord provides the packets as is, with no silence added.
 <br>
-So to make syncronization easier for editors, silence is added at points where the user doesn't talk.
+So to make synchronization easier for editors, silence is added at points where the user doesn't talk.
+<br>
+This makes all audio tracks the same length for that recording segment.

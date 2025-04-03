@@ -67,7 +67,7 @@ class AudioReceiveListener(
         }
 
         fun addData(data: ByteArray) {
-            writing += 20 // 20ms per frame
+            writing += 21 // 20ms + 1ms per frame
             this.silence.write(data)
             this.raw.write(data)
         }
@@ -110,9 +110,16 @@ class AudioReceiveListener(
             }
 
             CompletableFuture.runAsync {
+                val day = SimpleDateFormat("yyyy-MM-dd").format(java.util.Date())
                 val date = SimpleDateFormat("yyyy-MM-dd-hh.mm.ss").format(java.util.Date())
-                write("recordings/$username/$date/withSilence.mp3", getSilenceDataAndClear())
-                write("recordings/$username/$date/rawNoSilence.mp3", getRawDataAndClear())
+                val channel = Application.instance.selfUser.jda.guilds.firstOrNull()?.audioManager?.connectedChannel
+                val name = if (channel != null) {
+                    "channel ${channel.name} "
+                } else {
+                    ""
+                }
+                write("recordings/$username/$day/$date/${name}withSilence.mp3", getSilenceDataAndClear())
+                write("recordings/$username/$day/$date/${name}rawNoSilence.mp3", getRawDataAndClear())
             }.exceptionally { e ->
                 e.printStackTrace()
                 null
