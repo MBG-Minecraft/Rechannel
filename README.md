@@ -35,6 +35,12 @@ Next create a .env in the same directory as the .jar file, and add line `DISCORD
 >- volume is a value between 0.0 and 1.0 for how loud to record the audio at. Default is 1.0
 <br><br>
 
+`/list <user>`
+- Lists all recordings directories for a user.
+
+`/get <user> <date>`
+- Downloads a recording .zip from the yyyy-mm-dd date and sends it to the command sender.
+
 Recorded .mp3 files are located at `/recordings/$user/$date/`
 <br>
 There are two formats, withSilence and rawNoSilence.
