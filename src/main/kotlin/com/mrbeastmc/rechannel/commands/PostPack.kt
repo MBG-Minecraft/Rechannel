@@ -17,14 +17,12 @@ import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import kotlin.jvm.java
 
-class Get : ListenerAdapter(), Command {
+class PostPack : ListenerAdapter(), Command {
 
     override fun getCommandData(): SlashCommandData =
-        Commands.slash("get", "Collect an audio recording from a date for a user")
+        Commands.slash("post", "Posts a mod pack embed to this channel")
             .addOption(OptionType.USER, "user", "The user to collect audio files from", true)
-            .addOption(OptionType.STRING, "date", "The date in the format yyyy-MM-dd", true)
             .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
 
     override fun execute(event: SlashCommandInteractionEvent) {
@@ -33,26 +31,20 @@ class Get : ListenerAdapter(), Command {
             event.reply("You do not have permission to use this command.").setEphemeral(true).queue()
             return
         }
-        val date = event.getOption("date")?.asString ?: return
         val user = event.getOption("user")?.asUser ?: return
         val username = user.name
-        val recordingsDir = File("recordings/$username/$date/")
+        val recordingsDir = File("recordings/$username/")
         if (!recordingsDir.exists() || !recordingsDir.isDirectory) {
-            event.reply("No recordings found for $username on $date.").setEphemeral(true).queue()
+            event.reply("No recordings found for $username.").setEphemeral(true).queue()
             return
         }
-
-        val zipFile = File("recordings/$username/$date.zip")
-        ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zipOut ->
-            zipOut.setLevel(java.util.zip.Deflater.BEST_COMPRESSION)
-            recordingsDir.walkTopDown().filter { it.isFile }.forEach { file ->
-                zipOut.putNextEntry(ZipEntry(file.relativeTo(recordingsDir).path))
-                file.inputStream().use { it.copyTo(zipOut) }
-                zipOut.closeEntry()
-            }
+        val dates = recordingsDir.listFiles()?.filter { it.isDirectory }?.map { it.name } ?: emptyList()
+        if (dates.isEmpty()) {
+            event.reply("No recordings found for $username.").setEphemeral(true).queue()
+            return
         }
-        val fileUpload = FileUpload.fromData(zipFile, "$username-$date.zip")
-        event.replyFiles(fileUpload).setEphemeral(true).queue { zipFile.delete() }
+        val dateList = dates.joinToString("\n") { it }
+        event.reply("Recordings for $username:\n$dateList").setEphemeral(true).queue()
     }
 
 }

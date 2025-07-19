@@ -9,6 +9,7 @@ import net.sourceforge.lame.mp3.MPEGMode
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -33,6 +34,7 @@ class AudioReceiveListener(
     override fun canReceiveEncoded(): Boolean = true
     override fun handleEncodedAudio(packet: OpusPacket) {
         val userId = packet.userId
+
         val userData = data.find { it.userId == userId } ?: RecordingData(executor, userId).also { data.add(it) }
         userData.addData(packet.getAudioData(volume))
     }
@@ -67,7 +69,7 @@ class AudioReceiveListener(
         }
 
         fun addData(data: ByteArray) {
-            writing += 21 // 20ms + 1ms per frame
+            writing += 20 // 20ms
             this.silence.write(data)
             this.raw.write(data)
         }
@@ -110,8 +112,8 @@ class AudioReceiveListener(
             }
 
             CompletableFuture.runAsync {
-                val day = SimpleDateFormat("yyyy-MM-dd").format(java.util.Date())
-                val date = SimpleDateFormat("yyyy-MM-dd-hh.mm.ss").format(java.util.Date())
+                val day = SimpleDateFormat("yyyy-MM-dd").format(Date())
+                val date = SimpleDateFormat("yyyy-MM-dd-hh.mm.ss").format(Date())
                 val channel = Application.instance.selfUser.jda.guilds.firstOrNull()?.audioManager?.connectedChannel
                 val name = if (channel != null) {
                     "channel ${channel.name} "

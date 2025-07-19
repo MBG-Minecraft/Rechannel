@@ -18,7 +18,7 @@ class StartRecording : ListenerAdapter(), Command {
     override fun getCommandData(): SlashCommandData =
         Commands.slash("record", "Starts listening and recording all voice in the channel")
             .addOption(OptionType.CHANNEL, "channel", "The channel to start recording voices in", true)
-            .addOption(OptionType.NUMBER, "seconds", "The amount of seconds to release each segment of audio by. Default is 15 minutes", false)
+            .addOption(OptionType.INTEGER, "seconds", "The amount of seconds to release each segment of audio by. Default is 15 minutes", false)
             .addOption(OptionType.NUMBER, "volume", "The volume to record at, must be between 0.0 and 1.0. Default is 1.0", false)
             .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
 
@@ -43,7 +43,7 @@ class StartRecording : ListenerAdapter(), Command {
             return
         }
         audioManager.openAudioConnection(channel)
-        val seconds = event.getOption("seconds")?.asLong ?: TimeUnit.MINUTES.toMillis(15)
+        val seconds = event.getOption("seconds")?.asInt?.toLong() ?: TimeUnit.MINUTES.toSeconds(15)
         if (seconds < 0) {
             event.reply("The provided seconds is negative.").setEphemeral(true).queue()
             return
@@ -53,7 +53,7 @@ class StartRecording : ListenerAdapter(), Command {
             event.reply("The provided volume is not between 0.0 and 1.0.").setEphemeral(true).queue()
             return
         }
-        audioManager.receivingHandler = AudioReceiveListener(saveTimeMilliseconds = seconds, volume)
+        audioManager.receivingHandler = AudioReceiveListener(saveTimeMilliseconds = TimeUnit.SECONDS.toMillis(seconds), volume)
         audioManager.isSelfMuted = true
         event.reply("Started recording in ${channel.name}.").setEphemeral(true).queue {
             it.deleteOriginal().queueAfter(5, TimeUnit.SECONDS)
