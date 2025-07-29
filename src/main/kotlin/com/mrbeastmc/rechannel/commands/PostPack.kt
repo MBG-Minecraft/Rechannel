@@ -1,28 +1,25 @@
 package com.mrbeastmc.rechannel.commands
 
 import com.mrbeastmc.rechannel.commands.Command.Companion.configuration
-import com.mrbeastmc.rechannel.listeners.AudioReceiveListener
-import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
-import net.dv8tion.jda.api.utils.FileUpload
-import java.io.BufferedOutputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.text.SimpleDateFormat
+import java.awt.Color
 import java.util.concurrent.TimeUnit
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 class PostPack : ListenerAdapter(), Command {
 
     override fun getCommandData(): SlashCommandData =
         Commands.slash("post", "Posts a mod pack embed to this channel")
-            .addOption(OptionType.USER, "user", "The user to collect audio files from", true)
+            .addOption(OptionType.STRING, "title", "The title of the event", true)
+            .addOption(OptionType.STRING, "description", "The description of the event", true)
+            .addOption(OptionType.STRING, "url", "The url to the mod pack of the event", true)
+            .addOption(OptionType.STRING, "color", "The hex color of the embed", false)
+            .addOption(OptionType.ROLE, "mention", "An optional role to mention", false)
             .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
 
     override fun execute(event: SlashCommandInteractionEvent) {
@@ -31,20 +28,34 @@ class PostPack : ListenerAdapter(), Command {
             event.reply("You do not have permission to use this command.").setEphemeral(true).queue()
             return
         }
-        val user = event.getOption("user")?.asUser ?: return
-        val username = user.name
-        val recordingsDir = File("recordings/$username/")
-        if (!recordingsDir.exists() || !recordingsDir.isDirectory) {
-            event.reply("No recordings found for $username.").setEphemeral(true).queue()
-            return
+        val color = (event.getOption("color")?.asString ?: "#08B0D5").let {
+            try {
+                Color.decode(it)
+            } catch (e: NumberFormatException) {
+                event.reply("Invalid color format. Please use a valid hex color code.").setEphemeral(true).queue()
+                return
+            }
         }
-        val dates = recordingsDir.listFiles()?.filter { it.isDirectory }?.map { it.name } ?: emptyList()
-        if (dates.isEmpty()) {
-            event.reply("No recordings found for $username.").setEphemeral(true).queue()
-            return
+        val title = event.getOption("title")!!.asString
+        val url = event.getOption("url")!!.asString
+        val embed = EmbedBuilder()
+            .setTitle("Welcome to $title event!")
+            .addField("Description", event.getOption("description")!!.asString, false)
+            .addField("Installation",
+                "Once you have <https://modrinth.com/app> installed,\n" +
+                "you can download the mod pack at <$url>\n" +
+                "and install it by opening the `.mrpack`\n\n" +
+                "Once you have the mod pack installed, we recommend you to increase the allocated ram to 5GB+ in the pack settings", false)
+            .setImage("https://i.mrbeastgaming.dev/ram.png")
+            .setUrl(url)
+            .setColor(color)
+            .build()
+        val textChannel = event.channel.asTextChannel()
+        textChannel.sendMessageEmbeds(embed).queue()
+        event.getOption("mention")?.asRole?.let { role ->
+            textChannel.sendMessage(role.asMention).queue()
         }
-        val dateList = dates.joinToString("\n") { it }
-        event.reply("Recordings for $username:\n$dateList").setEphemeral(true).queue()
+        event.reply("Mod pack posted successfully!").setEphemeral(true).queue { it.deleteOriginal().queueAfter(5, TimeUnit.SECONDS) }
     }
 
 }
