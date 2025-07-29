@@ -3,6 +3,6 @@
 ext {
     jda_version = '6.0.0-preview'
     gson_version = '2.13.1'
-    kotlin_version = '2.1.21'
+    kotlin_version = '2.2.0'
     reflections_version = '0.10.2'
 }
