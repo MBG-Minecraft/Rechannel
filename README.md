@@ -11,6 +11,8 @@ Or running with `gradlew clean runShadow`
 
 ### Installation
 <img width="1098" alt="Untitled" src="https://github.com/user-attachments/assets/51e9f07c-7ede-4e4c-a4a2-2990f4e97b39" />
+
+Needs permissions EMBED_LINKS and CONNECT also good to add all the send messages permissions<br><br>
 Due to the current way Discord applies applications to guilds, you have to enable the guild installation checkmark in installation.
 Grant the authorization URL, view channel, send messages and connect permissions from the drop down menu on the same page.
 <br><br>
