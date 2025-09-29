@@ -36,9 +36,3 @@ jobs:
           check-latest: true
       - name: build
         run: gradle build
-      - name: capture build artifacts
-        if: ${{ runner.os == 'Linux' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: Artifacts
-          path: build/libs/
