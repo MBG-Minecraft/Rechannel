@@ -1,0 +1,59 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+buildscript {
+	apply from: 'dependencies.gradle'
+}
+
+plugins {
+	id 'org.jetbrains.kotlin.jvm' version '2.2.20'
+	id 'com.gradleup.shadow' version '9.3.1'
+	id 'application'
+	id 'java'
+}
+
+application {
+	mainClass = 'com.mrbeastmc.rechannel.Application'
+}
+
+def supportedJava = 21
+version = '1.0'
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(supportedJava))
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs += ['-source', '' + supportedJava, '-target', '' + supportedJava]
+}
+
+compileTestJava.options.encoding = 'UTF-8'
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	shadow
+	implementation.extendsFrom shadow
+}
+
+dependencies {
+	shadow "org.jetbrains.kotlin:kotlin-stdlib:${project.kotlin_version}"
+	shadow "org.reflections:reflections:${project.reflections_version}"
+	shadow "com.google.code.gson:gson:${project.gson_version}"
+	shadow "net.dv8tion:JDA:${project.jda_version}"
+	shadow fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+shadowJar {
+	configurations = [project.configurations.shadow]
+}
+
+tasks.build.dependsOn shadowJar
+
+processResources {
+	filter ReplaceTokens, tokens: [
+		'version' : project.version,
+	]
+}

@@ -1,0 +1,14 @@
+{
+  "version": "@version@",
+  "debug": false,
+  "admins": [
+    {
+      "id": 123456789012345678,
+      "user": "exampleuser"
+    },
+    {
+      "id": 123456789012345670,
+      "user": "anotheruser"
+    }
+  ]
+}
