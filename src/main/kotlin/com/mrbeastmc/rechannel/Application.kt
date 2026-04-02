@@ -1,9 +1,11 @@
 package com.mrbeastmc.rechannel
 
+import club.minnced.discord.jdave.interop.JDaveSessionFactory
 import com.mrbeastmc.rechannel.commands.Command
 import com.mrbeastmc.rechannel.events.CommandListener
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
+import net.dv8tion.jda.api.audio.AudioModuleConfig
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.MemberCachePolicy
 import java.io.File
@@ -28,12 +30,12 @@ class Application {
                 ?: loadTokenFromEnvFile()
                 ?: throw IllegalStateException("No token found. Please set the DISCORD_TOKEN environment variable or create a .env file with the token.")
 
-
             instance = JDABuilder.createDefault(token, intents)
                 // Done like this because JDA doesn't like Kotlin collectors or arrays.
                 .apply { commandListener.getEventListeners().forEach { addEventListeners(it) } }
                 .addEventListeners(commandListener)
                 .setMemberCachePolicy(cachePolicy)
+                .setAudioModuleConfig(AudioModuleConfig().withDaveSessionFactory(JDaveSessionFactory()))
                 .build()
                 .awaitReady()
 

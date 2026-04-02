@@ -15,8 +15,8 @@ application {
 	mainClass = 'com.mrbeastmc.rechannel.Application'
 }
 
-def supportedJava = 21
-version = '1.3'
+def supportedJava = 25
+version = '1.4'
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(supportedJava))
@@ -39,6 +39,15 @@ configurations {
 }
 
 dependencies {
+	// Interface to use for libraries
+	shadow("club.minnced:jdave-api:0.1.8")
+
+	// Compiled natives for libdave for the specified platform
+	shadow("club.minnced:jdave-native-linux-x86-64:0.1.8")
+	shadow("club.minnced:jdave-native-linux-aarch64:0.1.8")
+	shadow("club.minnced:jdave-native-win-x86-64:0.1.8")
+	shadow("club.minnced:jdave-native-darwin:0.1.8")
+
 	shadow "org.jetbrains.kotlin:kotlin-stdlib:${project.kotlin_version}"
 	shadow "org.reflections:reflections:${project.reflections_version}"
 	shadow "com.google.code.gson:gson:${project.gson_version}"
