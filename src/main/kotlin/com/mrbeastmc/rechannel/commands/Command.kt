@@ -5,11 +5,11 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 interface Command {
-    companion object {
-        lateinit var configuration: Configuration
-    }
+	companion object {
+		lateinit var configuration: Configuration
+	}
 
-    fun getCommandData(): SlashCommandData
+	fun getCommandData(): SlashCommandData
 
-    fun execute(event: SlashCommandInteractionEvent)
+	fun execute(event: SlashCommandInteractionEvent)
 }

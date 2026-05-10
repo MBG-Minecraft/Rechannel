@@ -7,13 +7,13 @@ import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
-import java.io.File
+import java.util.concurrent.TimeUnit
 
-class List : ListenerAdapter(), Command {
+class RelayVolume : ListenerAdapter(), Command {
 
 	override fun getCommandData(): SlashCommandData =
-		Commands.slash("list", "List the dates of a user's recordings")
-			.addOption(OptionType.USER, "user", "The user to collect audio files from", true)
+		Commands.slash("relay-volume", "Sets the gain of the relayed audio (default 1.0)")
+			.addOption(OptionType.NUMBER, "gain", "Volume multiplier (0.0 = silence, 1.0 = normal, 2.0 = double)", true)
 			.setDefaultPermissions(DefaultMemberPermissions.DISABLED)
 
 	override fun execute(event: SlashCommandInteractionEvent) {
@@ -22,20 +22,22 @@ class List : ListenerAdapter(), Command {
 			event.reply("You do not have permission to use this command.").setEphemeral(true).queue()
 			return
 		}
-		val user = event.getOption("user")?.asUser ?: return
-		val username = user.name
-		val recordingsDir = File("recordings/$username/")
-		if (!recordingsDir.exists() || !recordingsDir.isDirectory) {
-			event.reply("No recordings found for $username.").setEphemeral(true).queue()
-			return
-		}
-		val dates = recordingsDir.listFiles()?.filter { it.isDirectory }?.map { it.name } ?: emptyList()
-		if (dates.isEmpty()) {
-			event.reply("No recordings found for $username.").setEphemeral(true).queue()
-			return
-		}
-		val dateList = dates.joinToString("\n") { it }
-		event.reply("Recordings for $username:\n$dateList").setEphemeral(true).queue()
-	}
 
+		val guild = event.guild ?: return
+		val handler = RelayListen.activeHandlers[guild.idLong] ?: run {
+			event.reply("Not in relay-listen mode. Use /relay-listen first.").setEphemeral(true).queue()
+			return
+		}
+
+		val gain = event.getOption("gain")!!.asDouble
+		if (gain < 0.0 || gain > 10.0) {
+			event.reply("Gain must be between 0.0 and 10.0.").setEphemeral(true).queue()
+			return
+		}
+
+		handler.gain = gain
+		event.reply("Relay gain set to $gain.").setEphemeral(true).queue {
+			it.deleteOriginal().queueAfter(5, TimeUnit.SECONDS)
+		}
+	}
 }

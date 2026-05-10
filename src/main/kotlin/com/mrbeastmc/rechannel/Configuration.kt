@@ -8,44 +8,49 @@ import java.nio.file.StandardCopyOption
 
 class Configuration(configReset: Boolean = false) {
 
-    private val config = File("configurations", "config.json")
-    private var lastModified: Long = -1
-    private var configData: JsonObject
-    private var following: Long? = null
-    private val gson = Gson()
+	private val config = File("configurations", "config.json")
+	private var lastModified: Long = -1
+	private var configData: JsonObject
+	private var following: Long? = null
+	private val gson = Gson()
 
-    init {
-        File("configurations").apply { if (!exists()) mkdir() }
-        if (!config.exists() || configReset) {
-            if (configReset) println("Resetting config file from command line argument")
-            this::class.java.getResourceAsStream("/config.json")!!.use { resource ->
-                Files.copy(resource, config.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            }
-        }
-        configData = readConfig()
-    }
+	init {
+		File("configurations").apply { if (!exists()) mkdir() }
+		if (!config.exists() || configReset) {
+			if (configReset) println("Resetting config file from command line argument")
+			this::class.java.getResourceAsStream("/config.json")!!.use { resource ->
+				Files.copy(resource, config.toPath(), StandardCopyOption.REPLACE_EXISTING)
+			}
+		}
+		configData = readConfig()
+	}
 
-    fun getFollowing(): Long? {
-        return following
-    }
+	fun getFollowing(): Long? {
+		return following
+	}
 
-    fun setFollowing(following: Long?) {
-        this.following = following
-    }
+	fun setFollowing(following: Long?) {
+		this.following = following
+	}
 
-    fun isDebug(): Boolean = getRawJsonConfig().get("debug")?.asBoolean == true || Application.debug
+	fun getRelayPort(): Int {
+		val element = getRawJsonConfig().get("echoing-port")
+		return if (element != null && !element.isJsonNull) element.asInt else 0
+	}
 
-    fun getAdministrators(): List<Long> = getRawJsonConfig().getAsJsonArray("admins")
-        .map { it.asJsonObject.getAsJsonPrimitive("id").asLong }
+	fun isDebug(): Boolean = getRawJsonConfig().get("debug")?.asBoolean == true || Application.debug
 
-    internal fun getRawJsonConfig(): JsonObject {
-        if (config.lastModified() != lastModified) {
-            configData = readConfig()
-            lastModified = config.lastModified()
-        }
-        return configData
-    }
+	fun getAdministrators(): List<Long> = getRawJsonConfig().getAsJsonArray("admins")
+		.map { it.asJsonObject.getAsJsonPrimitive("id").asLong }
 
-    private fun readConfig(): JsonObject = gson.fromJson(config.readText(), JsonObject::class.java)
+	internal fun getRawJsonConfig(): JsonObject {
+		if (config.lastModified() != lastModified) {
+			configData = readConfig()
+			lastModified = config.lastModified()
+		}
+		return configData
+	}
+
+	private fun readConfig(): JsonObject = gson.fromJson(config.readText(), JsonObject::class.java)
 
 }

@@ -16,7 +16,7 @@ application {
 }
 
 def supportedJava = 25
-version = '1.4'
+version = '1.5'
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(supportedJava))
@@ -39,7 +39,7 @@ configurations {
 }
 
 dependencies {
-	// Interface to use for libraries
+	// DAVE is Discord Audio Video Engine. Required for voice support in JDA.
 	shadow("club.minnced:jdave-api:0.1.8")
 
 	// Compiled natives for libdave for the specified platform
