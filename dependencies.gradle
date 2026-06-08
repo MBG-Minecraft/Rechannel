@@ -1,7 +1,7 @@
 // Done to allow Dependabot scanning
 
 ext {
-    jda_version = '6.4.1'
+    jda_version = '6.4.2'
     gson_version = '2.14.0'
     kotlin_version = '2.3.21'
     reflections_version = '0.10.2'
